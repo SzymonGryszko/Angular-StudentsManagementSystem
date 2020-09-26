@@ -19,6 +19,7 @@ export class StudentAddComponent implements OnInit {
     username = username.trim();
   
     if (!name || !email || !username) {
+      alert("Wpisz wszystkie dane nowego studenta");
       return;
     }
 

@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { Student } from './student';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StudentService {
-
   private studentsUrl = 'https://jsonplaceholder.typicode.com/users';
   httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getStudents(): Observable<Student[]> {
     return this.http.get<Student[]>(this.studentsUrl);
@@ -38,12 +38,19 @@ export class StudentService {
     return this.http.delete<Student>(url, this.httpOptions);
   }
 
-  searchStudents(term: string): Observable<Student[]> {
+  private searchStudents(term: string): Observable<Student[]> {
     if (!term.trim()) {
       return of([]);
     }
-  
+
     return this.http.get<Student[]>(`${this.studentsUrl}?name_like=${term}`);
   }
 
+  search(searchTerms$: Subject<string>) {
+    return searchTerms$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((term: string) => this.searchStudents(term))
+    );
+  }
 }

@@ -1,10 +1,10 @@
 <div class="search-component">
     <h3><label for="search-box">Wyszukaj studenta</label></h3>
   
-    <input #searchBox id="search-box" (input)="search(searchBox.value)" />
+    <input #searchBox id="search-box" (input)="searchTerms$.next(searchBox.value)" />
   
     <ul class="search-result">
-      <li *ngFor="let student of students$ | async" >
+      <li *ngFor="let student of students$ | async; trackBy: identifyStudent" >
         <a routerLink="/edit/{{student.id}}">
           {{student.name}}
         </a>
